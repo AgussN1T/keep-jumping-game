@@ -7,52 +7,38 @@ class GameScene extends Phaser.Scene {
         super('game');
     }
 
-/* 📏 Plataforma corta (difícil)
 
-Ancho: 70–90 px
 
-Alto: 12–16 px
+    preload() {
 
-👉 Es lo mínimo sin volverse injusto.
+        this.load.image('plataforma', 'assets/plataforma.png');
+        
+        this.load.spritesheet(
+        'jugador', 'assets/jugador.png',
+        { frameWidth: 32, frameHeight: 34 }
+    )
+    }
 
-📏 Plataforma media (estándar)
+    create() {
 
-Ancho: 110–140 px
+        this.jugador = this.physics.add.sprite(50, 110, 'jugador').setOrigin(0, 1).setCollideWorldBounds(true).setGravityY(300)
+        this.plataforma = this.physics.add.staticSprite(200, 300, 'plataforma')
+        this.physics.add.collider(this.jugador, this.plataforma);
 
-Alto: 14–18 px
+        createAnimations(this)
+        
+        this.keys = this.input.keyboard.createCursorKeys()
+        
+        this.jugador.anims.play('jugador-idle', true)
 
-📏 Plataforma larga (fácil / descanso)
+    }
 
-Ancho: 180–220 px
+    update() {
 
-Alto: 16–20 px */
+        
+        
 
-/* Personaje — tamaño recomendado
-📐 Tamaño base
-
-Ancho: 28–36 px
-
-Alto: 40–48 px
-
-Forma ideal:
-
-cápsula
-
-mini personaje estilizado
-
-un poco más alto que ancho
-
-👉 Esto hace que:
-
-aterrizar se sienta preciso
-
-el jugador “lea” bien colisiones */
-
-    preload() {}
-
-    create() {}
-
-    update() {}
+    }
 }
 
 const config = {
