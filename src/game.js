@@ -57,7 +57,10 @@ class GameScene extends Phaser.Scene {
 
         this.physics.add.collider(this.jugador, this.plataformaInicial)
 
-        this.physics.add.collider(this.jugador, this.plataformas)
+        this.physics.add.collider(this.jugador, this.plataformas,
+            this.onPlayerLand,
+            null,
+            this)
 
         createAnimations(this)
 
@@ -69,6 +72,21 @@ class GameScene extends Phaser.Scene {
         this.jugador.body.checkCollision.left = false;
         this.jugador.body.checkCollision.right = false;
 
+
+        this.score = 0
+
+        this.scoreText = this.add.text(
+            this.scale.width / 2,
+            20,
+            '0',
+            {
+                fontFamily: 'Sans-serif',
+                fontSize: '24px',
+                color: '#ffffff'
+            }
+        ).setOrigin(0.5, 0)
+            .setScrollFactor(0)
+            .setShadow(0, 1, '#000000', 4, false, true)
 
         /* const esTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
@@ -88,6 +106,9 @@ class GameScene extends Phaser.Scene {
     update() {
 
 
+
+        if (this.jugador.isDead) return;
+
         checkControls(this)
 
         this.plataformas.children.iterate(plataforma => {
@@ -95,6 +116,23 @@ class GameScene extends Phaser.Scene {
                 plataforma.destroy();
             }
         });
+
+
+        if (this.jugador.y >= config.height) {
+            this.jugador.isDead = true
+            // this.jugador.anims.play('jugador-dead')
+            this.jugador.setCollideWorldBounds(false);
+            setTimeout(() => {
+                this.jugador.setVelocityY(-200)
+
+            }, 100)
+            setTimeout(() => {
+                this.scene.restart()
+
+            }, 2000)
+        }
+
+
 
 
     }
@@ -112,11 +150,12 @@ class GameScene extends Phaser.Scene {
         // const velocidad = Phaser.Math.Between(15, 50);
 
         const plataforma = this.plataformas.create(x, y, 'plataforma');
-        
-        plataforma.preUpdate = function () {
+        plataforma.scored = false
+
+        /* plataforma.preUpdate = function () {
             this.x = Math.round(this.x);
             this.y = Math.round(this.y);
-        };
+        }; */
 
         plataforma
             .setVelocityY(velocidad)
@@ -129,6 +168,25 @@ class GameScene extends Phaser.Scene {
             this.plataformaInicial.destroy();
         }
     }
+
+    onPlayerLand(jugador, plataforma) {
+
+        if (!plataforma.scored && jugador.body.velocity.y >= 0) {
+            plataforma.scored = true
+
+            this.score += 1
+            this.scoreText.setText(this.score)
+
+            // animación sutil (opcional)
+            this.tweens.add({
+                targets: this.scoreText,
+                scale: 1.15,
+                duration: 100,
+                yoyo: true
+            })
+        }
+    }
+
 
 
 }
@@ -145,7 +203,7 @@ const config = {
     render: {
         roundPixels: true
     },
-    backgroundColor: '#44afd6',
+    backgroundColor: '#3a9ec4',
     parent: 'game',
     physics: {
         default: 'arcade',

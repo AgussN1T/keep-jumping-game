@@ -1,6 +1,6 @@
-export function checkControls ({jugador, keys}){
+export function checkControls({ jugador, keys }) {
 
-    const isJugadorTouchingFloor = jugador.body.touching.down
+    const isJugadorTouchingFloor = jugador.body.blocked.down
     const isLeftKeyDown = keys.left.isDown
     const isRightKeyDown = keys.right.isDown
     const isUpKeyDown = keys.up.isDown
@@ -14,11 +14,19 @@ export function checkControls ({jugador, keys}){
         isJugadorTouchingFloor && jugador.anims.play('jugador-walk', true)
         jugador.x += 2
         jugador.flipX = false
-    } else if(isJugadorTouchingFloor){
+    } else if (isJugadorTouchingFloor) {
+        jugador.anims.stop()
         jugador.anims.play('jugador-idle', true)
     }
-     if (isUpKeyDown && isJugadorTouchingFloor) {
+    if (isUpKeyDown && isJugadorTouchingFloor) {
         jugador.setVelocityY(-200)
         jugador.anims.play('jugador-jump', true)
     }
+    else {
+        if (!jugador.body.blocked.down && jugador.body.velocity.y > 0) {
+            jugador.setFrame(5);
+        }
+    }
+
+
 }
