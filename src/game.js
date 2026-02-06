@@ -11,7 +11,10 @@ class GameScene extends Phaser.Scene {
     preload() {
 
         this.load.image('plataforma', 'assets/plataforma.png');
-        this.load.image('plataformaInicial', 'assets/plataforma2.png');
+        this.load.image('plataforma2', 'assets/plataforma2.png');
+        this.load.image('plataforma3', 'assets/plataforma3.png');
+
+        this.load.image('plataformaInicial', 'assets/plataformaInicial.png');
 
         this.load.spritesheet(
             'jugador', 'assets/jugador.png',
@@ -35,10 +38,8 @@ class GameScene extends Phaser.Scene {
             loop: true
         });
 
-
         this.jugador = this.physics.add.sprite(180, 450, 'jugador').setOrigin(0, 1).setCollideWorldBounds(true)
             .setGravityY(300).setSize(12, 16).setOffset(11, 16)
-
 
         this.plataformas = this.physics.add.group({
             allowGravity: false,
@@ -49,9 +50,6 @@ class GameScene extends Phaser.Scene {
         
                 this.jugador.body.debugShowBody = true;
                 this.jugador.body.debugBodyColor = 0xff0000; */
-
-
-        // this.jugador.setScale(2)
 
         this.plataformaInicial = this.physics.add.staticSprite(180, 460, 'plataformaInicial')
 
@@ -64,9 +62,7 @@ class GameScene extends Phaser.Scene {
 
         createAnimations(this)
 
-        this.keys = this.input.keyboard.createCursorKeys()
-
-        // this.jugador.anims.play('jugador-idle', true)
+        // this.keys = this.input.keyboard.createCursorKeys()
 
         this.jugador.body.checkCollision.up = false;
         this.jugador.body.checkCollision.left = false;
@@ -87,6 +83,43 @@ class GameScene extends Phaser.Scene {
         ).setOrigin(0.5, 0)
             .setScrollFactor(0)
             .setShadow(0, 1, '#000000', 4, false, true)
+
+
+        this.isMobile = this.sys.game.device.input.touch
+
+
+        // teclado (solo PC)
+        if (!this.isMobile) {
+            this.keys = this.input.keyboard.createCursorKeys()
+        }
+
+        // táctil (solo mobile)
+        if (this.isMobile) {
+            this.touch = {
+                left: false,
+                right: false,
+                up: false
+            }
+
+            this.input.on('pointerdown', (pointer) => {
+                if (pointer.x < this.scale.width / 2) {
+                    this.touch.left = true
+                } else {
+                    this.touch.right = true
+                }
+
+                if (this.jugador.body.blocked.down) {
+                    this.touch.up = true
+                }
+            })
+
+            this.input.on('pointerup', () => {
+                this.touch.left = false
+                this.touch.right = false
+                this.touch.up = false
+            })
+        }
+
 
         /* const esTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
@@ -109,7 +142,11 @@ class GameScene extends Phaser.Scene {
 
         if (this.jugador.isDead) return;
 
-        checkControls(this)
+        checkControls({
+            jugador: this.jugador,
+            keys: this.keys,
+            touch: this.touch
+        })
 
         this.plataformas.children.iterate(plataforma => {
             if (plataforma && plataforma.y > this.scale.height + 50) {
@@ -123,7 +160,7 @@ class GameScene extends Phaser.Scene {
             // this.jugador.anims.play('jugador-dead')
             this.jugador.setCollideWorldBounds(false);
             setTimeout(() => {
-                this.jugador.setVelocityY(-200)
+                this.jugador.setVelocityY(-150)
 
             }, 100)
             setTimeout(() => {
