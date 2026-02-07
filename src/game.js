@@ -13,6 +13,7 @@ class GameScene extends Phaser.Scene {
         this.load.image('plataforma', 'assets/plataforma.png');
         this.load.image('plataforma2', 'assets/plataforma2.png');
         this.load.image('plataforma3', 'assets/plataforma3.png');
+        this.load.image('plataforma4', 'assets/plataforma4.png');
 
         this.load.image('plataformaInicial', 'assets/plataformaInicial.png');
 
@@ -33,10 +34,30 @@ class GameScene extends Phaser.Scene {
 
         this.time.addEvent({
             delay: 1500,
-            callback: this.spawnPlataforma,
-            callbackScope: this,
-            loop: true
+            loop: true,
+            callback: () => this.spawnPlataforma('normal')
         });
+
+
+        this.time.addEvent({
+            delay: 5000,
+            loop: true,
+            callback: () => this.spawnPlataforma('lateral')
+        });
+
+         this.time.addEvent({
+            delay: 8000,
+            loop: true,
+            callback: () => this.spawnPlataforma('ovni')
+        });
+
+         this.time.addEvent({
+            delay: 10000,
+            loop: true,
+            callback: () => this.spawnPlataforma('vaca')
+        });
+
+
 
         this.jugador = this.physics.add.sprite(180, 450, 'jugador').setOrigin(0, 1).setCollideWorldBounds(true)
             .setGravityY(300).setSize(12, 16).setOffset(11, 16)
@@ -120,26 +141,9 @@ class GameScene extends Phaser.Scene {
             })
         }
 
-
-        /* const esTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-
-        if (esTouch) {
-            console.log('Dispositivo táctil');
-        } */
-
-        /* if (navigator.userAgentData) {
-            const isMobile = navigator.userAgentData.mobile;
-            console.log(isMobile ? "Estás en un móvil" : "Estás en PC");
-        } */
-
-
-
     }
 
     update() {
-
-
-
         if (this.jugador.isDead) return;
 
         checkControls({
@@ -157,48 +161,121 @@ class GameScene extends Phaser.Scene {
 
         if (this.jugador.y >= config.height) {
             this.jugador.isDead = true
-            // this.jugador.anims.play('jugador-dead')
+            // this.jugador.anims.play('jugador-lose')
             this.jugador.setCollideWorldBounds(false);
             setTimeout(() => {
                 this.jugador.setVelocityY(-150)
 
             }, 100)
+
             setTimeout(() => {
                 this.scene.restart()
 
             }, 2000)
         }
 
-
-
-
     }
 
-    spawnPlataforma() {
-
-        // const x = Phaser.Math.Between(40, this.scale.width - 40);
-        const x = Math.round(
-            Phaser.Math.Between(40, this.scale.width - 40)
-        );
+    spawnPlataforma(tipo = 'normal') {
 
         const y = -20;
+        let x;
+        let textura = 'plataforma';
 
-        const velocidad = Phaser.Math.Between(8, 16) * 4;
-        // const velocidad = Phaser.Math.Between(15, 50);
+        const velocidad = Phaser.Math.Between(4, 16) * 4;
 
-        const plataforma = this.plataformas.create(x, y, 'plataforma');
-        plataforma.scored = false
+        if (tipo === 'normal') {
 
-        /* plataforma.preUpdate = function () {
-            this.x = Math.round(this.x);
-            this.y = Math.round(this.y);
-        }; */
+            x = Phaser.Math.Between(40, this.scale.width - 40);
+            textura = 'plataforma';
+
+        } else if (tipo === 'lateral') {
+
+            const plataformaTemp = this.plataformas.create(0, 0, 'plataforma2');
+            const ancho = plataformaTemp.displayWidth;
+            plataformaTemp.destroy();
+
+            const izquierda = Phaser.Math.Between(0, 1) === 0;
+
+            x = izquierda
+                ? ancho / 2
+                : this.scale.width - ancho / 2;
+
+            textura = 'plataforma2';
+        } else if (tipo==='ovni'){
+
+            x = Phaser.Math.Between(40, this.scale.width - 40);
+            textura = 'plataforma3';   
+        }
+        else if (tipo==='vaca'){
+
+            x = Phaser.Math.Between(40, this.scale.width - 40);
+            textura = 'plataforma4';   
+        }
+
+        x = Math.round(x);
+
+        const plataforma = this.plataformas.create(x, y, textura);
+        plataforma.scored = false;
 
         plataforma
             .setVelocityY(velocidad)
             .setOrigin(0.5, 1);
-
     }
+
+
+
+    /*     spawnPlataformaNormal() {
+    
+            const x = Math.round(
+                Phaser.Math.Between(40, this.scale.width - 40)
+            );
+    
+            const y = -20;
+    
+            const velocidad = Phaser.Math.Between(8, 16) * 4;
+    
+            const plataforma = this.plataformas.create(x, y, 'plataforma');
+            plataforma.scored = false
+    
+            plataforma
+                .setVelocityY(velocidad)
+                .setOrigin(0.5, 1);
+    
+        }
+    
+        spawnPlataformaLateral(){
+        
+        const y = -20;
+    
+        // margen de seguridad
+        const margen = 40;
+        const anchoZona = 70;
+    
+    
+        const izquierda = Phaser.Math.Between(0, 1) === 0;
+    
+        const x = izquierda
+            ? Phaser.Math.Between(margen, margen + anchoZona)
+            : Phaser.Math.Between(
+                this.scale.width - margen - anchoZona,
+                this.scale.width - margen
+            );
+    
+        const velocidad = Phaser.Math.Between(8, 16) * 4;
+    
+        const plataforma = this.plataformas.create(
+            Math.round(x),
+            y,
+            'plataforma2'
+        );
+    
+        plataforma.scored = false;
+    
+        plataforma
+            .setVelocityY(velocidad)
+            .setOrigin(0.5, 1);
+        } */
 
     destroyPlataformaInicial() {
         if (this.plataformaInicial) {
