@@ -10,10 +10,10 @@ class GameScene extends Phaser.Scene {
 
     preload() {
 
-        this.load.image('plataforma', 'assets/plataforma.png');
-        this.load.image('plataforma2', 'assets/plataforma2.png');
-        this.load.image('plataforma3', 'assets/plataforma3.png');
-        this.load.image('plataforma4', 'assets/plataforma4.png');
+        this.load.image('plataformaAndamio', 'assets/plataforma.png');
+        this.load.image('plataformaMadera', 'assets/plataforma2.png');
+        this.load.image('plataformaOvni', 'assets/plataforma3.png');
+        this.load.image('plataformaVaca', 'assets/plataforma4.png');
 
         this.load.image('plataformaInicial', 'assets/plataformaInicial.png');
 
@@ -40,18 +40,18 @@ class GameScene extends Phaser.Scene {
 
 
         this.time.addEvent({
-            delay: 5000,
+            delay: 10000,
             loop: true,
             callback: () => this.spawnPlataforma('lateral')
         });
 
-         this.time.addEvent({
+        this.time.addEvent({
             delay: 8000,
             loop: true,
             callback: () => this.spawnPlataforma('ovni')
         });
 
-         this.time.addEvent({
+        this.time.addEvent({
             delay: 10000,
             loop: true,
             callback: () => this.spawnPlataforma('vaca')
@@ -83,7 +83,6 @@ class GameScene extends Phaser.Scene {
 
         createAnimations(this)
 
-        // this.keys = this.input.keyboard.createCursorKeys()
 
         this.jugador.body.checkCollision.up = false;
         this.jugador.body.checkCollision.left = false;
@@ -177,105 +176,40 @@ class GameScene extends Phaser.Scene {
     }
 
     spawnPlataforma(tipo = 'normal') {
+    const y = -20;
 
-        const y = -20;
-        let x;
-        let textura = 'plataforma';
+    // 1. Diccionario maestro de configuración
+    const configPlataformas = {
+        normal:  { textura: 'plataformaAndamio',  velMin: 4,  velMax: 16 },
+        lateral: { textura: 'plataformaMadera', velMin: 2,  velMax: 6 },
+        ovni:    { textura: 'plataformaOvni', velMin: 6, velMax: 10 },
+        vaca:    { textura: 'plataformaVaca', velMin: 12,  velMax: 20 }
+    };
 
-        const velocidad = Phaser.Math.Between(4, 16) * 4;
+    // Obtenemos la config del tipo, o por defecto la normal
+    const config = configPlataformas[tipo] || configPlataformas.normal;
+    
+    // 2. Cálculo de velocidad usando el mapa
+    const velocidad = Phaser.Math.Between(config.velMin, config.velMax) * 4;
 
-        if (tipo === 'normal') {
-
-            x = Phaser.Math.Between(40, this.scale.width - 40);
-            textura = 'plataforma';
-
-        } else if (tipo === 'lateral') {
-
-            const plataformaTemp = this.plataformas.create(0, 0, 'plataforma2');
-            const ancho = plataformaTemp.displayWidth;
-            plataformaTemp.destroy();
-
-            const izquierda = Phaser.Math.Between(0, 1) === 0;
-
-            x = izquierda
-                ? ancho / 2
-                : this.scale.width - ancho / 2;
-
-            textura = 'plataforma2';
-        } else if (tipo==='ovni'){
-
-            x = Phaser.Math.Between(40, this.scale.width - 40);
-            textura = 'plataforma3';   
-        }
-        else if (tipo==='vaca'){
-
-            x = Phaser.Math.Between(40, this.scale.width - 40);
-            textura = 'plataforma4';   
-        }
-
-        x = Math.round(x);
-
-        const plataforma = this.plataformas.create(x, y, textura);
-        plataforma.scored = false;
-
-        plataforma
-            .setVelocityY(velocidad)
-            .setOrigin(0.5, 1);
+    let x;
+    if (tipo === 'lateral') {
+        const frame = this.textures.get(config.textura).getSourceImage();
+        const ancho = frame.width;
+        const esIzquierda = Phaser.Math.Between(0, 1) === 0;
+        x = esIzquierda ? ancho / 2 : this.scale.width - ancho / 2;
+    } else {
+        x = Phaser.Math.Between(40, this.scale.width - 40);
     }
 
-
-
-    /*     spawnPlataformaNormal() {
+    // 3. Creación
+    const plataforma = this.plataformas.create(Math.round(x), y, config.textura);
     
-            const x = Math.round(
-                Phaser.Math.Between(40, this.scale.width - 40)
-            );
-    
-            const y = -20;
-    
-            const velocidad = Phaser.Math.Between(8, 16) * 4;
-    
-            const plataforma = this.plataformas.create(x, y, 'plataforma');
-            plataforma.scored = false
-    
-            plataforma
-                .setVelocityY(velocidad)
-                .setOrigin(0.5, 1);
-    
-        }
-    
-        spawnPlataformaLateral(){
-        
-        const y = -20;
-    
-        // margen de seguridad
-        const margen = 40;
-        const anchoZona = 70;
-    
-    
-        const izquierda = Phaser.Math.Between(0, 1) === 0;
-    
-        const x = izquierda
-            ? Phaser.Math.Between(margen, margen + anchoZona)
-            : Phaser.Math.Between(
-                this.scale.width - margen - anchoZona,
-                this.scale.width - margen
-            );
-    
-        const velocidad = Phaser.Math.Between(8, 16) * 4;
-    
-        const plataforma = this.plataformas.create(
-            Math.round(x),
-            y,
-            'plataforma2'
-        );
-    
-        plataforma.scored = false;
-    
-        plataforma
-            .setVelocityY(velocidad)
-            .setOrigin(0.5, 1);
-        } */
+    plataforma.scored = false;
+    plataforma
+        .setVelocityY(velocidad)
+        .setOrigin(0.5, 1);
+}
 
     destroyPlataformaInicial() {
         if (this.plataformaInicial) {
@@ -291,7 +225,6 @@ class GameScene extends Phaser.Scene {
             this.score += 1
             this.scoreText.setText(this.score)
 
-            // animación sutil (opcional)
             this.tweens.add({
                 targets: this.scoreText,
                 scale: 1.15,
@@ -305,8 +238,6 @@ class GameScene extends Phaser.Scene {
 
 }
 
-// width: 480,
-// height: 800
 
 
 const config = {

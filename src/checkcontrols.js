@@ -32,7 +32,6 @@ export function checkControls({ jugador, keys, touch }) {
         jugador.setVelocityY(-200)
         jugador.anims.play('jugador-jump', true)
 
-        // 🔴 evita salto infinito en touch
         if (touch) touch.up = false
     }
 
