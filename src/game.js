@@ -10,12 +10,16 @@ class GameScene extends Phaser.Scene {
 
     preload() {
 
-        this.load.image('plataformaAndamio', 'assets/plataforma.png');
+        this.load.image('plataformaAndamio', 'assets/plataforma5.png');
         this.load.image('plataformaMadera', 'assets/plataforma2.png');
         this.load.image('plataformaOvni', 'assets/plataforma3.png');
         this.load.image('plataformaVaca', 'assets/plataforma4.png');
-
         this.load.image('plataformaInicial', 'assets/plataformaInicial.png');
+
+        this.load.image('nube1', 'assets/nube1.png');
+        this.load.image('nube2', 'assets/nube2.png');
+        this.load.image('nube3', 'assets/nube3.png');
+        this.load.image('background', 'assets/background.png');
 
         this.load.spritesheet(
             'jugador', 'assets/jugador.png',
@@ -24,6 +28,35 @@ class GameScene extends Phaser.Scene {
     }
 
     create() {
+
+        this.add.image(0, 0, 'background').setOrigin(0, 0);
+
+        const nubeFondo1 = this.add.image(140, 90, 'nube1');
+
+        const nubeFondo2 = this.add.image(220, 110, 'nube2');
+
+        const nubeFondo3 = this.add.image(120, 180, 'nube3');
+
+        /* 
+                this.tweens.add({
+                    targets: [nubeFondo1, nubeFondo2],
+                    x: '+=30',
+                    duration: 20000,
+                    yoyo: true,
+                    repeat: -1,
+                    ease: 'Sine.easeInOut'
+                });
+        
+                this.tweens.add({
+                    targets: nubeFondo3,
+                    x: '+=60',
+                    duration: 12000,
+                    yoyo: true,
+                    repeat: -1,
+                    ease: 'Sine.easeInOut'
+                }); */
+
+
 
         this.time.addEvent({
             delay: 20000,
@@ -59,7 +92,7 @@ class GameScene extends Phaser.Scene {
 
 
 
-        this.jugador = this.physics.add.sprite(180, 450, 'jugador').setOrigin(0, 1).setCollideWorldBounds(true)
+        this.jugador = this.physics.add.sprite(180, 420, 'jugador').setOrigin(0, 1).setCollideWorldBounds(true)
             .setGravityY(300).setSize(12, 16).setOffset(11, 16)
 
         this.plataformas = this.physics.add.group({
@@ -72,7 +105,7 @@ class GameScene extends Phaser.Scene {
                 this.jugador.body.debugShowBody = true;
                 this.jugador.body.debugBodyColor = 0xff0000; */
 
-        this.plataformaInicial = this.physics.add.staticSprite(180, 460, 'plataformaInicial')
+        this.plataformaInicial = this.physics.add.staticSprite(180, 430, 'plataformaInicial')
 
         this.physics.add.collider(this.jugador, this.plataformaInicial)
 
@@ -176,40 +209,40 @@ class GameScene extends Phaser.Scene {
     }
 
     spawnPlataforma(tipo = 'normal') {
-    const y = -20;
+        const y = -20;
 
-    // 1. Diccionario maestro de configuración
-    const configPlataformas = {
-        normal:  { textura: 'plataformaAndamio',  velMin: 4,  velMax: 16 },
-        lateral: { textura: 'plataformaMadera', velMin: 2,  velMax: 6 },
-        ovni:    { textura: 'plataformaOvni', velMin: 6, velMax: 10 },
-        vaca:    { textura: 'plataformaVaca', velMin: 12,  velMax: 20 }
-    };
+        // 1. Diccionario maestro de configuración
+        const configPlataformas = {
+            normal: { textura: 'plataformaAndamio', velMin: 4, velMax: 16 },
+            lateral: { textura: 'plataformaMadera', velMin: 2, velMax: 6 },
+            ovni: { textura: 'plataformaOvni', velMin: 6, velMax: 10 },
+            vaca: { textura: 'plataformaVaca', velMin: 12, velMax: 20 }
+        };
 
-    // Obtenemos la config del tipo, o por defecto la normal
-    const config = configPlataformas[tipo] || configPlataformas.normal;
-    
-    // 2. Cálculo de velocidad usando el mapa
-    const velocidad = Phaser.Math.Between(config.velMin, config.velMax) * 4;
+        // Obtenemos la config del tipo, o por defecto la normal
+        const config = configPlataformas[tipo] || configPlataformas.normal;
 
-    let x;
-    if (tipo === 'lateral') {
-        const frame = this.textures.get(config.textura).getSourceImage();
-        const ancho = frame.width;
-        const esIzquierda = Phaser.Math.Between(0, 1) === 0;
-        x = esIzquierda ? ancho / 2 : this.scale.width - ancho / 2;
-    } else {
-        x = Phaser.Math.Between(40, this.scale.width - 40);
+        // 2. Cálculo de velocidad usando el mapa
+        const velocidad = Phaser.Math.Between(config.velMin, config.velMax) * 4;
+
+        let x;
+        if (tipo === 'lateral') {
+            const frame = this.textures.get(config.textura).getSourceImage();
+            const ancho = frame.width;
+            const esIzquierda = Phaser.Math.Between(0, 1) === 0;
+            x = esIzquierda ? ancho / 2 : this.scale.width - ancho / 2;
+        } else {
+            x = Phaser.Math.Between(40, this.scale.width - 40);
+        }
+
+        // 3. Creación
+        const plataforma = this.plataformas.create(Math.round(x), y, config.textura);
+
+        plataforma.scored = false;
+        plataforma
+            .setVelocityY(velocidad)
+            .setOrigin(0.5, 1);
     }
-
-    // 3. Creación
-    const plataforma = this.plataformas.create(Math.round(x), y, config.textura);
-    
-    plataforma.scored = false;
-    plataforma
-        .setVelocityY(velocidad)
-        .setOrigin(0.5, 1);
-}
 
     destroyPlataformaInicial() {
         if (this.plataformaInicial) {
@@ -237,7 +270,6 @@ class GameScene extends Phaser.Scene {
 
 
 }
-
 
 
 const config = {
