@@ -2,6 +2,7 @@ import Phaser from 'phaser'
 
 import { createAnimations } from './animations.js';
 import { checkControls } from './checkcontrols.js';
+import Jugador from './jugador.js';
 
 class GameScene extends Phaser.Scene {
     constructor() {
@@ -96,9 +97,7 @@ class GameScene extends Phaser.Scene {
         });
 
 
-
-        this.jugador = this.physics.add.sprite(180, 420, 'jugador').setOrigin(0, 1).setCollideWorldBounds(true)
-            .setGravityY(300).setSize(12, 16).setOffset(11, 16)
+        this.jugador = new Jugador(this, 180, 420);
 
         this.plataformas = this.physics.add.group({
             allowGravity: false,
@@ -115,12 +114,6 @@ class GameScene extends Phaser.Scene {
             this)
 
         createAnimations(this)
-
-
-        this.jugador.body.checkCollision.up = false;
-        this.jugador.body.checkCollision.left = false;
-        this.jugador.body.checkCollision.right = false;
-
 
         this.score = 0
 
@@ -139,7 +132,6 @@ class GameScene extends Phaser.Scene {
 
 
         this.isMobile = this.sys.game.device.input.touch
-
 
         if (!this.isMobile) {
             this.keys = this.input.keyboard.createCursorKeys()
@@ -184,9 +176,6 @@ class GameScene extends Phaser.Scene {
                     this.touch.right = true
                 }
 
-                /* if (this.jugador.body.blocked.down) {
-                    this.touch.up = true
-                } */
             })
 
             this.input.on('pointerup', () => {
@@ -202,13 +191,9 @@ class GameScene extends Phaser.Scene {
     }
 
     update() {
-        if (this.jugador.lose) return;
+        if (this.jugador.isLose) return;
 
-        checkControls({
-            jugador: this.jugador,
-            keys: this.keys,
-            touch: this.touch
-        })
+        this.jugador.update(this.keys, this.touch);
 
         this.plataformas.children.iterate(plataforma => {
             if (plataforma && plataforma.y > this.scale.height + 50) {
@@ -216,28 +201,24 @@ class GameScene extends Phaser.Scene {
             }
         });
 
-        if (this.jugador.y >= config.height) {
-            this.jugador.lose = true
-            // this.jugador.anims.play('jugador-lose')
-            this.jugador.setCollideWorldBounds(false);
-
-            this.time.delayedCall(100, () => {
-                this.jugador.body.checkCollision.down = false;
-                this.jugador.setVelocityY(-150);
-            });
-
-
-            this.time.delayedCall(1500, () => {
-                this.cameras.main.shake(200, 0.02);
-            });
-
-            this.time.delayedCall(3000, () => {
-                this.scene.restart();
-            });
-
+        if (this.jugador.y >= this.scale.height && !this.jugador.isLose) {
+            this.triggerGameOver();
         }
 
     }
+
+    triggerGameOver() {
+    this.jugador.lose();
+
+    this.time.delayedCall(1700, () => {
+        this.cameras.main.shake(200, 0.02);
+    });
+
+    this.time.delayedCall(3000, () => {
+        this.scene.restart();
+    });
+}
+
 
     spawnPlataforma(tipo = 'normal') {
         const y = -20;
