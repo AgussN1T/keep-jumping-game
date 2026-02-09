@@ -47,11 +47,11 @@ export default class Jugador extends Phaser.Physics.Arcade.Sprite {
 
         if (left) {
             if (isTouchingFloor) this.play('jugador-walk', true);
-            this.setVelocityX(-140); // Usamos velocity en lugar de x += 2 para físicas más suaves
+            this.setVelocityX(-120); // Usamos velocity en lugar de x += 2 para físicas más suaves
             this.flipX = true;
         } else if (right) {
             if (isTouchingFloor) this.play('jugador-walk', true);
-            this.setVelocityX(140);
+            this.setVelocityX(120);
             this.flipX = false;
         } else {
             this.setVelocityX(0);
