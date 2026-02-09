@@ -185,9 +185,6 @@ class GameScene extends Phaser.Scene {
             })
         }
 
-
-
-
     }
 
     update() {
@@ -208,16 +205,16 @@ class GameScene extends Phaser.Scene {
     }
 
     triggerGameOver() {
-    this.jugador.lose();
+        this.jugador.lose();
 
-    this.time.delayedCall(1700, () => {
-        this.cameras.main.shake(200, 0.02);
-    });
+        this.time.delayedCall(1700, () => {
+            this.cameras.main.shake(200, 0.02);
+        });
 
-    this.time.delayedCall(3000, () => {
-        this.scene.restart();
-    });
-}
+        this.time.delayedCall(3000, () => {
+            this.scene.restart();
+        });
+    }
 
 
     spawnPlataforma(tipo = 'normal') {
