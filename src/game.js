@@ -21,10 +21,10 @@ class GameScene extends Phaser.Scene {
         this.load.image('nube3', 'assets/background/nube3.png');
         this.load.image('background', 'assets/background/background.png');
 
-        this.load.image('btnJump', 'assets/btnJump.png');
+        this.load.image('btnJump', 'assets/buttons/btnJump.png');
 
         this.load.spritesheet(
-            'jugador', 'assets/jugador.png',
+            'jugador', 'assets/entities/jugador.png',
             { frameWidth: 32, frameHeight: 32 }
         )
     }
@@ -38,6 +38,9 @@ class GameScene extends Phaser.Scene {
         const nubeFondo2 = this.add.image(260, 170, 'nube2');
 
         const nubeFondo3 = this.add.image(120, 230, 'nube3');
+
+
+
 
         /* 
                 this.tweens.add({
@@ -102,11 +105,6 @@ class GameScene extends Phaser.Scene {
             immovable: true
         });
 
-        /*         this.physics.world.createDebugGraphic();
-        
-                this.jugador.body.debugShowBody = true;
-                this.jugador.body.debugBodyColor = 0xff0000; */
-
         this.plataformaInicial = this.physics.add.staticSprite(180, 430, 'plataformaInicial')
 
         this.physics.add.collider(this.jugador, this.plataformaInicial)
@@ -155,7 +153,7 @@ class GameScene extends Phaser.Scene {
             }
 
             this.jumpButton = this.add.image(
-                this.scale.width /2,
+                this.scale.width / 2,
                 this.scale.height - 70,
                 'btnJump'
             )
@@ -204,7 +202,7 @@ class GameScene extends Phaser.Scene {
     }
 
     update() {
-        if (this.jugador.isDead) return;
+        if (this.jugador.lose) return;
 
         checkControls({
             jugador: this.jugador,
@@ -218,20 +216,25 @@ class GameScene extends Phaser.Scene {
             }
         });
 
-
         if (this.jugador.y >= config.height) {
-            this.jugador.isDead = true
+            this.jugador.lose = true
             // this.jugador.anims.play('jugador-lose')
             this.jugador.setCollideWorldBounds(false);
-            setTimeout(() => {
-                this.jugador.setVelocityY(-150)
 
-            }, 100)
+            this.time.delayedCall(100, () => {
+                this.jugador.body.checkCollision.down = false;
+                this.jugador.setVelocityY(-150);
+            });
 
-            setTimeout(() => {
-                this.scene.restart()
 
-            }, 2000)
+            this.time.delayedCall(1500, () => {
+                this.cameras.main.shake(200, 0.02);
+            });
+
+            this.time.delayedCall(3000, () => {
+                this.scene.restart();
+            });
+
         }
 
     }
@@ -265,6 +268,16 @@ class GameScene extends Phaser.Scene {
 
         // 3. Creación
         const plataforma = this.plataformas.create(Math.round(x), y, config.textura);
+
+        /*          if(tipo ==='vaca'){
+                    this.tweens.add({
+                    targets: plataforma,
+                    rotation: Math.PI * 2,
+                    duration: 40000,
+                    repeat: -1
+                })
+                } */
+
 
         plataforma.scored = false;
         plataforma
