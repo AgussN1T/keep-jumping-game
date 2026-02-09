@@ -12,7 +12,7 @@ export function checkControls({ jugador, keys, touch }) {
 
     const jump =
         (keys && keys.up.isDown) ||
-        (touch && touch.up)
+        (touch && touch.jump)
 
     if (left) {
         isJugadorTouchingFloor && jugador.anims.play('jugador-walk', true)
@@ -32,7 +32,7 @@ export function checkControls({ jugador, keys, touch }) {
         jugador.setVelocityY(-200)
         jugador.anims.play('jugador-jump', true)
 
-        if (touch) touch.up = false
+        if (touch) touch.jump = false
     }
 
     if (!isJugadorTouchingFloor && jugador.body.velocity.y > 0) {

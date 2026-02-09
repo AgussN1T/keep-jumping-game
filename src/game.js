@@ -10,16 +10,18 @@ class GameScene extends Phaser.Scene {
 
     preload() {
 
-        this.load.image('plataformaAndamio', 'assets/plataforma5.png');
-        this.load.image('plataformaMadera', 'assets/plataforma2.png');
-        this.load.image('plataformaOvni', 'assets/plataforma3.png');
-        this.load.image('plataformaVaca', 'assets/plataforma4.png');
-        this.load.image('plataformaInicial', 'assets/plataformaInicial.png');
+        this.load.image('plataformaAndamio', 'assets/platforms/plataforma5.png');
+        this.load.image('plataformaMadera', 'assets/platforms/plataforma2.png');
+        this.load.image('plataformaOvni', 'assets/platforms/plataforma3.png');
+        this.load.image('plataformaVaca', 'assets/platforms/plataforma4.png');
+        this.load.image('plataformaInicial', 'assets/platforms/plataformaInicial.png');
 
-        this.load.image('nube1', 'assets/nube1.png');
-        this.load.image('nube2', 'assets/nube2.png');
-        this.load.image('nube3', 'assets/nube3.png');
-        this.load.image('background', 'assets/background.png');
+        this.load.image('nube1', 'assets/background/nube1.png');
+        this.load.image('nube2', 'assets/background/nube2.png');
+        this.load.image('nube3', 'assets/background/nube3.png');
+        this.load.image('background', 'assets/background/background.png');
+
+        this.load.image('btnJump', 'assets/btnJump.png');
 
         this.load.spritesheet(
             'jugador', 'assets/jugador.png',
@@ -31,11 +33,11 @@ class GameScene extends Phaser.Scene {
 
         this.add.image(0, 0, 'background').setOrigin(0, 0);
 
-        const nubeFondo1 = this.add.image(140, 90, 'nube1');
+        const nubeFondo1 = this.add.image(140, 120, 'nube1');
 
-        const nubeFondo2 = this.add.image(220, 110, 'nube2');
+        const nubeFondo2 = this.add.image(260, 170, 'nube2');
 
-        const nubeFondo3 = this.add.image(120, 180, 'nube3');
+        const nubeFondo3 = this.add.image(120, 230, 'nube3');
 
         /* 
                 this.tweens.add({
@@ -141,12 +143,10 @@ class GameScene extends Phaser.Scene {
         this.isMobile = this.sys.game.device.input.touch
 
 
-        // teclado (solo PC)
         if (!this.isMobile) {
             this.keys = this.input.keyboard.createCursorKeys()
         }
 
-        // táctil (solo mobile)
         if (this.isMobile) {
             this.touch = {
                 left: false,
@@ -154,16 +154,41 @@ class GameScene extends Phaser.Scene {
                 up: false
             }
 
+            this.jumpButton = this.add.image(
+                this.scale.width /2,
+                this.scale.height - 70,
+                'btnJump'
+            )
+                .setScrollFactor(0)
+                .setAlpha(0.6)
+                .setInteractive()
+
+            this.jumpButton.isUI = true
+
+            this.jumpButton.on('pointerdown', () => {
+                this.touch.jump = true
+            })
+
+            this.jumpButton.on('pointerup', () => {
+                this.touch.jump = false
+            })
+
             this.input.on('pointerdown', (pointer) => {
+
+                //se ignora si se pulsa el boton
+                if (this.jumpButton.getBounds().contains(pointer.x, pointer.y)) {
+                    return
+                }
+
                 if (pointer.x < this.scale.width / 2) {
                     this.touch.left = true
                 } else {
                     this.touch.right = true
                 }
 
-                if (this.jugador.body.blocked.down) {
+                /* if (this.jugador.body.blocked.down) {
                     this.touch.up = true
-                }
+                } */
             })
 
             this.input.on('pointerup', () => {
@@ -172,6 +197,9 @@ class GameScene extends Phaser.Scene {
                 this.touch.up = false
             })
         }
+
+
+
 
     }
 
