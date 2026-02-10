@@ -1,7 +1,6 @@
 import Phaser from 'phaser'
 
 import { createAnimations } from './animations.js';
-import { checkControls } from './checkcontrols.js';
 import Jugador from './jugador.js';
 
 class GameScene extends Phaser.Scene {
