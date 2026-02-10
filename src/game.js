@@ -132,15 +132,18 @@ class GameScene extends Phaser.Scene {
 
         this.isMobile = this.sys.game.device.input.touch
 
+        //controles desktop
         if (!this.isMobile) {
             this.keys = this.input.keyboard.createCursorKeys()
         }
 
+        //controles mobile
         if (this.isMobile) {
+
             this.touch = {
                 left: false,
                 right: false,
-                up: false
+                jump: false
             }
 
             this.jumpButton = this.add.image(
@@ -152,35 +155,62 @@ class GameScene extends Phaser.Scene {
                 .setAlpha(0.6)
                 .setInteractive()
 
-            this.jumpButton.isUI = true
+            this.jumpButton.isUI = true;
 
             this.jumpButton.on('pointerdown', () => {
-                this.touch.jump = true
+                this.touch.jump = true;
             })
 
             this.jumpButton.on('pointerup', () => {
-                this.touch.jump = false
+                this.touch.jump = false;
             })
 
-            this.input.on('pointerdown', (pointer) => {
+            this.jumpButton.setDepth(10);
 
-                if (this.jumpButton.getBounds().contains(pointer.x, pointer.y)) {
-                    return
-                }
+            this.input.addPointer(2);
 
-                if (pointer.x < this.scale.width / 2) {
-                    this.touch.left = true
-                } else {
-                    this.touch.right = true
-                }
+            this.leftZone = this.add.zone(0, 0, this.scale.width / 2, this.scale.height)
+                .setOrigin(0)
+                .setInteractive()
 
+            this.leftZone.on('pointerdown', () => {
+                this.touch.left = true
             })
-
-            this.input.on('pointerup', () => {
+            this.leftZone.on('pointerup', () => {
                 this.touch.left = false
-                this.touch.right = false
-                this.touch.up = false
             })
+
+            this.rightZone = this.add.zone(this.scale.width / 2, 0, this.scale.width / 2, this.scale.height)
+                .setOrigin(0)
+                .setInteractive()
+
+            this.rightZone.on('pointerdown', () => {
+                this.touch.right = true
+            })
+            this.rightZone.on('pointerup', () => {
+                this.touch.right = false
+            })
+
+
+            /*  this.input.on('pointerdown', (pointer) => {
+ 
+                 if (this.jumpButton.getBounds().contains(pointer.x, pointer.y)) {
+                     return;
+                 }
+ 
+                 if (pointer.x < this.scale.width / 2) {
+                     this.touch.left = true;
+                 } else {
+                     this.touch.right = true;
+                 }
+ 
+             })
+ 
+             this.input.on('pointerup', () => {
+                 this.touch.left = false;
+                 this.touch.right = false;
+                 this.touch.up = false;
+             }) */
         }
 
         this.startTime = this.time.now;
