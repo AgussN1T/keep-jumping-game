@@ -382,6 +382,20 @@ class GameScene extends Phaser.Scene {
 
         const plataforma = this.plataformas.create(Math.round(x), y, config.textura);
 
+        if (tipo === 'vaca') {
+            plataforma.body.setSize(
+                plataforma.width,
+                plataforma.height - 6
+            );
+
+            plataforma.body.setOffset(
+                0,
+                6
+            );
+
+            plataforma.refreshBody();
+        }
+
         plataforma.scored = false;
         plataforma
             .setVelocityY(velocidad)
