@@ -6,3 +6,10 @@ body {
   height: 100vh;
   background-color: #68b2cf;
 }
+
+@font-face {
+    font-family: 'Play';
+    src: url('/assets/fonts/Play-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}

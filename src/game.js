@@ -121,7 +121,7 @@ class GameScene extends Phaser.Scene {
             20,
             '0',
             {
-                fontFamily: 'Sans-serif',
+                fontFamily: 'Play',
                 fontSize: '24px',
                 color: '#ffffff'
             }
@@ -167,7 +167,6 @@ class GameScene extends Phaser.Scene {
 
             this.jumpButton.setDepth(10);
 
-            this.input.addPointer(2);
 
             this.leftZone = this.add.zone(0, 0, this.scale.width / 2, this.scale.height)
                 .setOrigin(0)
@@ -191,7 +190,7 @@ class GameScene extends Phaser.Scene {
                 this.touch.right = false
             })
 
-
+            this.input.addPointer(2);
             /*  this.input.on('pointerdown', (pointer) => {
  
                  if (this.jumpButton.getBounds().contains(pointer.x, pointer.y)) {
@@ -265,12 +264,14 @@ class GameScene extends Phaser.Scene {
         panel.strokeRoundedRect(-130, -90, 260, 180, 16);
 
         const title = this.add.text(0, -50, 'PERDISTE', {
+            fontFamily: 'Play',
             fontSize: '26px',
             color: '#ffffff',
             fontStyle: 'bold'
         }).setOrigin(0.5);
 
         const scoreText = this.add.text(0, -15, `Puntaje: ${this.score}`, {
+            fontFamily: 'Play',
             fontSize: '18px',
             color: '#ffffff'
         }).setOrigin(0.5);
@@ -280,6 +281,7 @@ class GameScene extends Phaser.Scene {
             15,
             `Tiempo: ${this.finalTime}s`,
             {
+                fontFamily: 'Play',
                 fontSize: '18px',
                 color: '#ffffff'
             }
@@ -300,6 +302,7 @@ class GameScene extends Phaser.Scene {
         );
 
         const btnText = this.add.text(0, 55, 'REINTENTAR', {
+            fontFamily: 'Play',
             fontSize: '16px',
             color: '#ffffff'
         }).setOrigin(0.5);
