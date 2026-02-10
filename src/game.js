@@ -36,9 +36,9 @@ class GameScene extends Phaser.Scene {
 
         const nubeFondo1 = this.add.image(140, 120, 'nube1');
 
-        const nubeFondo2 = this.add.image(260, 170, 'nube2');
+        const nubeFondo2 = this.add.image(300, 190, 'nube2');
 
-        const nubeFondo3 = this.add.image(120, 230, 'nube3');
+        const nubeFondo3 = this.add.image(70, 230, 'nube3');
 
 
 
@@ -165,7 +165,6 @@ class GameScene extends Phaser.Scene {
 
             this.input.on('pointerdown', (pointer) => {
 
-                //se ignora si se pulsa el boton
                 if (this.jumpButton.getBounds().contains(pointer.x, pointer.y)) {
                     return
                 }
@@ -185,6 +184,8 @@ class GameScene extends Phaser.Scene {
             })
         }
 
+        this.startTime = this.time.now;
+
     }
 
     update() {
@@ -203,24 +204,128 @@ class GameScene extends Phaser.Scene {
         }
 
     }
+    showGameOverModal() {
+
+        this.overlay = this.add.rectangle(
+            0, 0,
+            this.scale.width,
+            this.scale.height,
+            0x000000,
+            0.6
+        )
+            .setOrigin(0, 0)
+            .setScrollFactor(0)
+            .setDepth(100);
+
+        // contenedor del modal
+        this.gameOverContainer = this.add.container(
+            this.scale.width / 2,
+            this.scale.height / 2
+        )
+            .setScrollFactor(0)
+            .setDepth(101);
+
+        /* const panel = this.add.rectangle(0, 0, 260, 180, 0x1e1e1e, 0.95)
+            .setStrokeStyle(2, 0xffffff); */
+
+        const panel = this.add.graphics();
+
+        panel.fillStyle(0x1e1e1e, 0.95);
+        panel.lineStyle(2, 0xffffff, 1);
+        panel.fillRoundedRect(-130, -90, 260, 180, 16);
+        panel.strokeRoundedRect(-130, -90, 260, 180, 16);
+
+        const title = this.add.text(0, -50, 'PERDISTE', {
+            fontSize: '26px',
+            color: '#ffffff',
+            fontStyle: 'bold'
+        }).setOrigin(0.5);
+
+        const scoreText = this.add.text(0, -15, `Puntaje: ${this.score}`, {
+            fontSize: '18px',
+            color: '#ffffff'
+        }).setOrigin(0.5);
+
+        const timeText = this.add.text(
+            0,
+            15,
+            `Tiempo: ${this.finalTime}s`,
+            {
+                fontSize: '18px',
+                color: '#ffffff'
+            }
+        ).setOrigin(0.5);
+
+
+        /* const btn = this.add.rectangle(0, 55, 140, 40, 0x3a9ec4)
+            .setInteractive(); */
+
+        const btn = this.add.graphics();
+
+        btn.fillStyle(0x3a9ec4, 1);
+        btn.fillRoundedRect(-70, 35, 140, 40, 12);
+
+        btn.setInteractive(
+            new Phaser.Geom.Rectangle(-70, 35, 140, 40),
+            Phaser.Geom.Rectangle.Contains
+        );
+
+        const btnText = this.add.text(0, 55, 'REINTENTAR', {
+            fontSize: '16px',
+            color: '#ffffff'
+        }).setOrigin(0.5);
+
+        btn.on('pointerdown', () => {
+            btn.setScale(0.95);
+        });
+
+        btn.on('pointerup', () => {
+            btn.setScale(1);
+            this.scene.restart();
+        });
+
+        btn.on('pointerdown', () => {
+            this.scene.restart();
+        });
+
+        this.gameOverContainer.add([
+            panel,
+            title,
+            scoreText,
+            timeText,
+            btn,
+            btnText
+        ]);
+
+        // pequeña animación
+        this.gameOverContainer.setScale(0.8);
+        this.tweens.add({
+            targets: this.gameOverContainer,
+            scale: 1,
+            duration: 200,
+            ease: 'Back.easeOut'
+        });
+    }
+
 
     triggerGameOver() {
         this.jugador.lose();
+        this.finalTime = Math.floor(
+            (this.time.now - this.startTime) / 1000
+        );
 
         this.time.delayedCall(1700, () => {
             this.cameras.main.shake(200, 0.02);
         });
 
         this.time.delayedCall(3000, () => {
-            this.scene.restart();
+            this.showGameOverModal();
         });
     }
-
 
     spawnPlataforma(tipo = 'normal') {
         const y = -20;
 
-        // 1. Diccionario maestro de configuración
         const configPlataformas = {
             normal: { textura: 'plataformaAndamio', velMin: 4, velMax: 16 },
             lateral: { textura: 'plataformaMadera', velMin: 2, velMax: 6 },
@@ -228,10 +333,9 @@ class GameScene extends Phaser.Scene {
             vaca: { textura: 'plataformaVaca', velMin: 12, velMax: 20 }
         };
 
-        // Obtenemos la config del tipo, o por defecto la normal
+
         const config = configPlataformas[tipo] || configPlataformas.normal;
 
-        // 2. Cálculo de velocidad usando el mapa
         const velocidad = Phaser.Math.Between(config.velMin, config.velMax) * 4;
 
         let x;
@@ -244,18 +348,7 @@ class GameScene extends Phaser.Scene {
             x = Phaser.Math.Between(40, this.scale.width - 40);
         }
 
-        // 3. Creación
         const plataforma = this.plataformas.create(Math.round(x), y, config.textura);
-
-        /*          if(tipo ==='vaca'){
-                    this.tweens.add({
-                    targets: plataforma,
-                    rotation: Math.PI * 2,
-                    duration: 40000,
-                    repeat: -1
-                })
-                } */
-
 
         plataforma.scored = false;
         plataforma
@@ -285,6 +378,10 @@ class GameScene extends Phaser.Scene {
             })
         }
     }
+
+
+
+
 
 
 
