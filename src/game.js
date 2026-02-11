@@ -15,6 +15,8 @@ class GameScene extends Phaser.Scene {
         this.load.image('plataformaOvni', 'assets/platforms/plataforma3.png');
         this.load.image('plataformaVaca', 'assets/platforms/plataforma4.png');
         this.load.image('plataformaInicial', 'assets/platforms/plataformaInicial.png');
+        this.load.image('plataformaPoder', 'assets/platforms/plataformaPoder.png');
+
 
         this.load.image('nube1', 'assets/background/nube1.png');
         this.load.image('nube2', 'assets/background/nube2.png');
@@ -24,6 +26,10 @@ class GameScene extends Phaser.Scene {
         this.load.image('btnJump', 'assets/buttons/btnJump.png');
         this.load.image('btnLeft', 'assets/buttons/btnLeft.png');
         this.load.image('btnRight', 'assets/buttons/btnRight.png');
+        this.load.image('btnPower', 'assets/buttons/btnPower.png');
+
+        this.load.image('iconPower', 'assets/iconPower.png');
+
 
         this.load.spritesheet(
             'jugador', 'assets/entities/jugador.png',
@@ -132,9 +138,26 @@ class GameScene extends Phaser.Scene {
             .setShadow(0, 1, '#000000', 4, false, true)
 
 
+        //cargas
+        this.add.image(this.scale.width - 75, 20, 'iconPower').setOrigin(0, 0).setScale(0.8);
+        this.cargasText = this.add.text(
+            this.scale.width - 20,
+            20,
+            `${this.jugador.cargas}`,
+            {
+                fontFamily: 'Play',
+                fontSize: '24px',
+                color: '#ffffff'
+            }
+        )
+            .setOrigin(1, 0) // Alinea el texto a la derecha
+            .setScrollFactor(0)
+            .setShadow(0, 1, '#000000', 4, false, true)
+            .setDepth(100);
+
+
         this.isMobile = this.sys.game.device.input.touch
 
-        //controles desktop
         if (!this.isMobile) {
             this.keys = this.input.keyboard.createCursorKeys()
         }
@@ -145,17 +168,18 @@ class GameScene extends Phaser.Scene {
             this.touch = {
                 left: false,
                 right: false,
-                jump: false
+                jump: false,
+                power: false
             };
 
-            
+
             this.jumpButton = this.add.image(
                 this.scale.width - 60,
                 this.scale.height - 70,
                 'btnJump'
             )
                 .setScrollFactor(0)
-                .setAlpha(0.6)
+                .setAlpha(0.5)
                 .setInteractive()
                 .setDepth(100);
 
@@ -165,7 +189,7 @@ class GameScene extends Phaser.Scene {
                 'btnLeft'
             )
                 .setScrollFactor(0)
-                .setAlpha(0.6)
+                .setAlpha(0.5)
                 .setInteractive()
                 .setDepth(100);
 
@@ -178,7 +202,18 @@ class GameScene extends Phaser.Scene {
                 'btnRight'
             )
                 .setScrollFactor(0)
-                .setAlpha(0.6)
+                .setAlpha(0.5)
+                .setInteractive()
+                .setDepth(100);
+
+
+            this.powerButton = this.add.image(
+                this.scale.width - 60,
+                this.scale.height - 160,
+                'btnPower'
+            )
+                .setScrollFactor(0)
+                .setAlpha(0.4)
                 .setInteractive()
                 .setDepth(100);
 
@@ -195,7 +230,11 @@ class GameScene extends Phaser.Scene {
             this.rightButton.on('pointerup', () => { this.touch.right = false; this.rightButton.setAlpha(0.6); });
             this.rightButton.on('pointerout', () => { this.touch.right = false; this.rightButton.setAlpha(0.6); });
 
-            
+            this.powerButton.on('pointerdown', () => { this.touch.power = true; this.powerButton.setAlpha(1); });
+            this.powerButton.on('pointerup', () => { this.touch.power = false; this.powerButton.setAlpha(0.6); });
+            this.powerButton.on('pointerout', () => { this.touch.power = false; this.powerButton.setAlpha(0.6); });
+
+
             this.input.addPointer(2);
         }
 
@@ -395,6 +434,19 @@ class GameScene extends Phaser.Scene {
         }
     }
 
+
+    
+    updateTextCharges(){
+        this.cargasText.setText(this.jugador.cargas);
+        this.tweens.add({
+                    targets: this.cargasText,
+                    scale: 1.3,
+                    duration: 100,
+                    yoyo: true,
+                    ease: 'Power1.easeOut'
+                });
+    }
+
     onPlayerLand(jugador, plataforma) {
 
         if (!plataforma.scored && jugador.body.velocity.y >= 0) {
@@ -409,11 +461,41 @@ class GameScene extends Phaser.Scene {
                 duration: 100,
                 yoyo: true
             })
+
+            if (this.score > 0 && this.score % 20 === 0) {
+                jugador.cargas++;
+                this.updateTextCharges();
+            }
         }
     }
 
 
 
+    createTemporalPlatform(x, y) {
+        const nube = this.plataformas.create(x + 6, y + 2, 'plataformaPoder');
+
+        nube.setOrigin(0.5, 0);
+        nube.setVelocityY(0);
+        nube.scored = true;
+
+        nube.setAlpha(0);
+        this.tweens.add({
+            targets: nube,
+            alpha: 1,
+            duration: 100
+        });
+
+        this.time.delayedCall(4000, () => {
+            if (nube.active) {
+                this.tweens.add({
+                    targets: nube,
+                    alpha: 0,
+                    duration: 500,
+                    onComplete: () => nube.destroy()
+                });
+            }
+        });
+    }
 
 
 
