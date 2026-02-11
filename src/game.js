@@ -22,6 +22,8 @@ class GameScene extends Phaser.Scene {
         this.load.image('background', 'assets/background/background.png');
 
         this.load.image('btnJump', 'assets/buttons/btnJump.png');
+        this.load.image('btnLeft', 'assets/buttons/btnLeft.png');
+        this.load.image('btnRight', 'assets/buttons/btnRight.png');
 
         this.load.spritesheet(
             'jugador', 'assets/entities/jugador.png',
@@ -137,79 +139,64 @@ class GameScene extends Phaser.Scene {
             this.keys = this.input.keyboard.createCursorKeys()
         }
 
-        //controles mobile
+
         if (this.isMobile) {
 
             this.touch = {
                 left: false,
                 right: false,
                 jump: false
-            }
+            };
 
+            
             this.jumpButton = this.add.image(
-                this.scale.width / 2,
+                this.scale.width - 60,
                 this.scale.height - 70,
                 'btnJump'
             )
                 .setScrollFactor(0)
                 .setAlpha(0.6)
                 .setInteractive()
+                .setDepth(100);
 
-            this.jumpButton.isUI = true;
-
-            this.jumpButton.on('pointerdown', () => {
-                this.touch.jump = true;
-            })
-
-            this.jumpButton.on('pointerup', () => {
-                this.touch.jump = false;
-            })
-
-            this.jumpButton.setDepth(10);
-
-
-            this.leftZone = this.add.zone(0, 0, this.scale.width / 2, this.scale.height)
-                .setOrigin(0)
+            this.leftButton = this.add.image(
+                60,
+                this.scale.height - 70,
+                'btnLeft'
+            )
+                .setScrollFactor(0)
+                .setAlpha(0.6)
                 .setInteractive()
+                .setDepth(100);
 
-            this.leftZone.on('pointerdown', () => {
-                this.touch.left = true
-            })
-            this.leftZone.on('pointerup', () => {
-                this.touch.left = false
-            })
+            // this.leftButton.flipX = true; 
+            // this.leftButton.setTint(0xffaaaa);
 
-            this.rightZone = this.add.zone(this.scale.width / 2, 0, this.scale.width / 2, this.scale.height)
-                .setOrigin(0)
+            this.rightButton = this.add.image(
+                this.scale.width / 2 - 20,
+                this.scale.height - 70,
+                'btnRight'
+            )
+                .setScrollFactor(0)
+                .setAlpha(0.6)
                 .setInteractive()
+                .setDepth(100);
 
-            this.rightZone.on('pointerdown', () => {
-                this.touch.right = true
-            })
-            this.rightZone.on('pointerup', () => {
-                this.touch.right = false
-            })
 
+            this.jumpButton.on('pointerdown', () => { this.touch.jump = true; this.jumpButton.setAlpha(1); });
+            this.jumpButton.on('pointerup', () => { this.touch.jump = false; this.jumpButton.setAlpha(0.6); });
+            this.jumpButton.on('pointerout', () => { this.touch.jump = false; this.jumpButton.setAlpha(0.6); });
+
+            this.leftButton.on('pointerdown', () => { this.touch.left = true; this.leftButton.setAlpha(1); });
+            this.leftButton.on('pointerup', () => { this.touch.left = false; this.leftButton.setAlpha(0.6); });
+            this.leftButton.on('pointerout', () => { this.touch.left = false; this.leftButton.setAlpha(0.6); });
+
+            this.rightButton.on('pointerdown', () => { this.touch.right = true; this.rightButton.setAlpha(1); });
+            this.rightButton.on('pointerup', () => { this.touch.right = false; this.rightButton.setAlpha(0.6); });
+            this.rightButton.on('pointerout', () => { this.touch.right = false; this.rightButton.setAlpha(0.6); });
+
+            
             this.input.addPointer(2);
-            /*  this.input.on('pointerdown', (pointer) => {
- 
-                 if (this.jumpButton.getBounds().contains(pointer.x, pointer.y)) {
-                     return;
-                 }
- 
-                 if (pointer.x < this.scale.width / 2) {
-                     this.touch.left = true;
-                 } else {
-                     this.touch.right = true;
-                 }
- 
-             })
- 
-             this.input.on('pointerup', () => {
-                 this.touch.left = false;
-                 this.touch.right = false;
-                 this.touch.up = false;
-             }) */
         }
 
         this.startTime = this.time.now;
